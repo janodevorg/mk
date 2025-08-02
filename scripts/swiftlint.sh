@@ -8,7 +8,7 @@ echo "Derived Data directory is: $DERIVED_DATA_DIR"
 
 # 2. Paths to your SwiftLint config files in the project folder
 SOURCE_FILE_MAIN="$SRCROOT/.swiftlint.yml"
-SOURCE_FILE_CHILD="$SRCROOT/../.swiftlint-refinement.yml"
+SOURCE_FILE_CHILD="$SRCROOT/mk/.swiftlint-refinement.yml"
 
 # 3. Copy both files into Derived Data
 #    (You'll only copy what's actually there—if either is missing, it logs a warning.)
