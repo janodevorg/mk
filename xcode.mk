@@ -89,7 +89,7 @@ build-release:
 
 # @help:test: Run tests using xcodebuild (required for Core Data tests)
 .PHONY: test
-test:
+test: build
 	@echo "$(BLUE)Testing $(PROJECT_NAME) with xcodebuild...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME)$(RESET)"; \
