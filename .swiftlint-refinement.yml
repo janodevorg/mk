@@ -10,6 +10,7 @@ disabled_rules:
   - contrasted_opening_brace
   - cyclomatic_complexity
   - discouraged_none_name
+  - discouraged_object_literal
   - discouraged_optional_boolean
   - discouraged_optional_collection
   - empty_count
@@ -97,7 +98,6 @@ opt_in_rules:
   - discarded_notification_center_observer
   - discouraged_assert
   - discouraged_direct_init
-  - discouraged_object_literal
   - discouraged_optional_boolean
   - duplicated_key_in_dictionary_literal
   - duplicate_conditions
