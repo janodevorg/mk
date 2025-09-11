@@ -16,7 +16,12 @@ include $(MK_DIR)/config.mk
 include $(MK_DIR)/help.mk
 include $(MK_DIR)/coverage.mk
 include $(MK_DIR)/docc-package.mk
+
+# Include Tuist targets only when a Tuist project file is present in CWD
+# This avoids showing Tuist targets for pure SwiftPM packages.
+ifneq (,$(wildcard ./Project.swift))
 include $(MK_DIR)/tuist.mk
+endif
 
 # ===========================================
 # Default target - replaced by auto-generated help

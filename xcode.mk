@@ -87,6 +87,27 @@ build-release:
 	xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release
 	@echo "$(GREEN)$(PROJECT_NAME) project built successfully (Release)$(RESET)"
 
+# @help:test-show-only-errors: Run tests using xcodebuild and show only errors
+.PHONY: test-show-only-errors
+test-show-only-errors: build
+	@echo "make test | grep '^ ' | grep -v 'Suite' | grep -v '✔'"
+	@echo "$(BLUE)Testing $(PROJECT_NAME) with xcodebuild...$(RESET)"
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME)$(RESET)"; \
+		xcodebuild test \
+			-scheme $(PROJECT_NAME) \
+			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
+			-testPlan $(PROJECT_NAME) \
+			2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
+	else \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -testPlan $(PROJECT_NAME)$(RESET)"; \
+		xcodebuild test \
+			-scheme $(PROJECT_NAME) \
+			-destination 'platform=$(PLATFORM)' \
+			-testPlan $(PROJECT_NAME) \
+			2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
+	fi
+
 # @help:test: Run tests using xcodebuild (required for Core Data tests)
 .PHONY: test
 test: build
