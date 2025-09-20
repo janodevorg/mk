@@ -100,12 +100,12 @@ test-show-only-errors: build
 			-testPlan $(PROJECT_NAME) \
 			2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -testPlan $(PROJECT_NAME)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM)' \
-			-testPlan $(PROJECT_NAME) \
-			2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -testPlan $(PROJECT_NAME)$(RESET)"; \
+			xcodebuild test \
+				-scheme $(PROJECT_NAME) \
+				-destination 'platform=$(PLATFORM),arch=arm64' \
+				-testPlan $(PROJECT_NAME) \
+				2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
 	fi
 
 # @help:test: Run tests using xcodebuild (required for Core Data tests)
@@ -120,12 +120,12 @@ test: build
 			-testPlan $(PROJECT_NAME) \
 			2>&1 | xcbeautify || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -testPlan $(PROJECT_NAME)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM)' \
-			-testPlan $(PROJECT_NAME) \
-			2>&1 | xcbeautify || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -testPlan $(PROJECT_NAME)$(RESET)"; \
+			xcodebuild test \
+				-scheme $(PROJECT_NAME) \
+				-destination 'platform=$(PLATFORM),arch=arm64' \
+				-testPlan $(PROJECT_NAME) \
+				2>&1 | xcbeautify || exit 1; \
 	fi
 	@echo "$(GREEN)All tests completed successfully$(RESET)"
 
@@ -141,12 +141,12 @@ test-unit:
 			-only-testing:$(PROJECT_NAME)Tests \
 			2>&1 | xcbeautify || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM)' \
-			-only-testing:$(PROJECT_NAME)Tests \
-			2>&1 | xcbeautify || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
+			xcodebuild test \
+				-scheme $(PROJECT_NAME) \
+				-destination 'platform=$(PLATFORM),arch=arm64' \
+				-only-testing:$(PROJECT_NAME)Tests \
+				2>&1 | xcbeautify || exit 1; \
 	fi
 	@echo "$(GREEN)Unit tests completed successfully$(RESET)"
 
@@ -166,13 +166,13 @@ test-coverage:
 			-resultBundlePath ./coverage/TestResults.xcresult \
 			2>&1 | xcbeautify || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM)' \
-			-enableCodeCoverage YES \
-			-resultBundlePath ./coverage/TestResults.xcresult \
-			2>&1 | xcbeautify || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
+			xcodebuild test \
+				-scheme $(PROJECT_NAME) \
+				-destination 'platform=$(PLATFORM),arch=arm64' \
+				-enableCodeCoverage YES \
+				-resultBundlePath ./coverage/TestResults.xcresult \
+				2>&1 | xcbeautify || exit 1; \
 	fi
 	@echo "$(GREEN)Tests and code coverage completed successfully$(RESET)"
 	@echo "$(BLUE)Code coverage report available at ./coverage/TestResults.xcresult$(RESET)"
@@ -193,10 +193,10 @@ test-unit-file:
 			-only-testing:$(PROJECT_NAME)Tests/$(FILE) \
 			2>&1 | xcbeautify || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
 		xcodebuild test \
 			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM)' \
+			-destination 'platform=$(PLATFORM),arch=arm64' \
 			-only-testing:$(PROJECT_NAME)Tests/$(FILE) \
 			2>&1 | xcbeautify || exit 1; \
 	fi
@@ -216,10 +216,10 @@ test-ui-file:
 			-only-testing:$(PROJECT_NAME)UITests/$(FILE) \
 			2>&1 | xcbeautify || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM)' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
 		xcodebuild test \
 			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM)' \
+			-destination 'platform=$(PLATFORM),arch=arm64' \
 			-only-testing:$(PROJECT_NAME)UITests/$(FILE) \
 			2>&1 | xcbeautify || exit 1; \
 	fi
