@@ -74,8 +74,13 @@ build-and-test: build test
 .PHONY: build
 build:
 	@echo "$(BLUE)Building project (Debug)...$(RESET)"
-	@echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug$(RESET)"
-	xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug | xcbeautify -q
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'$(RESET)"; \
+		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' | xcbeautify -q; \
+	else \
+		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64'$(RESET)"; \
+		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64' | xcbeautify -q; \
+	fi
 	@echo "$(GREEN)$(PROJECT_NAME) project built successfully (Debug)$(RESET)"
 
 # Target to build the project in Release configuration
@@ -83,8 +88,13 @@ build:
 .PHONY: build-release
 build-release:
 	@echo "$(BLUE)Building $(PROJECT_NAME) project (Release)...$(RESET)"
-	@echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release$(RESET)"
-	xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'$(RESET)"; \
+		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'; \
+	else \
+		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),arch=arm64'$(RESET)"; \
+		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),arch=arm64'; \
+	fi
 	@echo "$(GREEN)$(PROJECT_NAME) project built successfully (Release)$(RESET)"
 
 # @help:test-show-only-errors: Run tests using xcodebuild and show only errors
@@ -112,7 +122,7 @@ test-show-only-errors: build
 .PHONY: test
 test: build
 	@echo "$(BLUE)Testing $(PROJECT_NAME) with xcodebuild...$(RESET)"
-	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+	if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME)$(RESET)"; \
 		xcodebuild test \
 			-scheme $(PROJECT_NAME) \
