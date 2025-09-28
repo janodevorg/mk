@@ -76,10 +76,10 @@ build:
 	@echo "$(BLUE)Building project (Debug)...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'$(RESET)"; \
-		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' | xcbeautify -q; \
+			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' | xcbeautify -q" || exit 1; \
 	else \
 		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64'$(RESET)"; \
-		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64' | xcbeautify -q; \
+			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64' | xcbeautify -q" || exit 1; \
 	fi
 	@echo "$(GREEN)$(PROJECT_NAME) project built successfully (Debug)$(RESET)"
 
@@ -104,38 +104,22 @@ test-show-only-errors: build
 	@echo "$(BLUE)Testing $(PROJECT_NAME) with xcodebuild...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
-			-testPlan $(PROJECT_NAME) \
-			2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME) 2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔'" || exit 1; \
 	else \
 			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -testPlan $(PROJECT_NAME)$(RESET)"; \
-			xcodebuild test \
-				-scheme $(PROJECT_NAME) \
-				-destination 'platform=$(PLATFORM),arch=arm64' \
-				-testPlan $(PROJECT_NAME) \
-				2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔' || exit 1; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -testPlan $(PROJECT_NAME) 2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔'" || exit 1; \
 	fi
 
 # @help:test: Run tests using xcodebuild (required for Core Data tests)
 .PHONY: test
 test: build
 	@echo "$(BLUE)Testing $(PROJECT_NAME) with xcodebuild...$(RESET)"
-	if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
-			-testPlan $(PROJECT_NAME) \
-			2>&1 | xcbeautify || exit 1; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -testPlan $(PROJECT_NAME) 2>&1 | xcbeautify" || exit 1; \
 	else \
 			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -testPlan $(PROJECT_NAME)$(RESET)"; \
-			xcodebuild test \
-				-scheme $(PROJECT_NAME) \
-				-destination 'platform=$(PLATFORM),arch=arm64' \
-				-testPlan $(PROJECT_NAME) \
-				2>&1 | xcbeautify || exit 1; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -testPlan $(PROJECT_NAME) 2>&1 | xcbeautify" || exit 1; \
 	fi
 	@echo "$(GREEN)All tests completed successfully$(RESET)"
 
@@ -145,18 +129,10 @@ test-unit:
 	@echo "$(BLUE)Running unit tests for $(PROJECT_NAME)...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
-			-only-testing:$(PROJECT_NAME)Tests \
-			2>&1 | xcbeautify || exit 1; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests 2>&1 | xcbeautify" || exit 1; \
 	else \
 			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
-			xcodebuild test \
-				-scheme $(PROJECT_NAME) \
-				-destination 'platform=$(PLATFORM),arch=arm64' \
-				-only-testing:$(PROJECT_NAME)Tests \
-				2>&1 | xcbeautify || exit 1; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests 2>&1 | xcbeautify" || exit 1; \
 	fi
 	@echo "$(GREEN)Unit tests completed successfully$(RESET)"
 
@@ -168,22 +144,12 @@ test-coverage:
 	@mkdir -p coverage
 	@rm -rf ./coverage/TestResults.xcresult
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
-			-enableCodeCoverage YES \
-			-resultBundlePath ./coverage/TestResults.xcresult \
-			2>&1 | xcbeautify || exit 1; \
-	else \
-			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
-			xcodebuild test \
-				-scheme $(PROJECT_NAME) \
-				-destination 'platform=$(PLATFORM),arch=arm64' \
-				-enableCodeCoverage YES \
-				-resultBundlePath ./coverage/TestResults.xcresult \
-				2>&1 | xcbeautify || exit 1; \
-	fi
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult 2>&1 | xcbeautify" || exit 1; \
+		else \
+				echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
+					bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult 2>&1 | xcbeautify" || exit 1; \
+		fi
 	@echo "$(GREEN)Tests and code coverage completed successfully$(RESET)"
 	@echo "$(BLUE)Code coverage report available at ./coverage/TestResults.xcresult$(RESET)"
 	@echo "$(BLUE)Open with: xcrun xcresulttool get test-results summary --path ./coverage/TestResults.xcresult | jq .$(RESET)"
@@ -197,18 +163,10 @@ test-unit-file:
 	@echo "$(BLUE)Testing file $(FILE) with xcodebuild...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
-			-only-testing:$(PROJECT_NAME)Tests/$(FILE) \
-			2>&1 | xcbeautify || exit 1; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),arch=arm64' \
-			-only-testing:$(PROJECT_NAME)Tests/$(FILE) \
-			2>&1 | xcbeautify || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
 	fi
 	@echo "$(GREEN)Test for $(FILE) completed successfully$(RESET)"
 
@@ -220,18 +178,10 @@ test-ui-file:
 	@echo "$(BLUE)Testing UI file $(FILE) with xcodebuild...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' \
-			-only-testing:$(PROJECT_NAME)UITests/$(FILE) \
-			2>&1 | xcbeautify || exit 1; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)UITests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
-		xcodebuild test \
-			-scheme $(PROJECT_NAME) \
-			-destination 'platform=$(PLATFORM),arch=arm64' \
-			-only-testing:$(PROJECT_NAME)UITests/$(FILE) \
-			2>&1 | xcbeautify || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)UITests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
 	fi
 	@echo "$(GREEN)UI test for $(FILE) completed successfully$(RESET)"
 
