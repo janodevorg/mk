@@ -155,35 +155,55 @@ test-coverage:
 	@echo "$(BLUE)Open with: xcrun xcresulttool get test-results summary --path ./coverage/TestResults.xcresult | jq .$(RESET)"
 	@echo "$(BLUE)For detailed results: xcrun xcresulttool get test-results tests --path ./coverage/TestResults.xcresult$(RESET)"
 
-# @help:test-unit-file: Run tests for a specific test file using xcodebuild (usage: make test-unit-file FILE=SomeTests)
+# @help:test-unit-file: Run tests for a specific test file using xcodebuild (usage: make test-unit-file FILE=SomeTests [METHOD=testMethodName])
 .PHONY: test-unit-file
 test-unit-file:
 	@if [ -z "$(FILE)" ]; then \
 		echo "$(RED)Error: specify FILE=<TestClassName> (without the .swift extension)$(RESET)"; exit 1; fi
-	@echo "$(BLUE)Testing file $(FILE) with xcodebuild...$(RESET)"
-	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
-			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
+	@if [ -n "$(METHOD)" ]; then \
+		echo "$(BLUE)Testing method $(METHOD) in $(FILE) with xcodebuild...$(RESET)"; \
+		TEST_TARGET="$(PROJECT_NAME)Tests/$(FILE)/$(METHOD)"; \
 	else \
-			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
-				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
+		echo "$(BLUE)Testing file $(FILE) with xcodebuild...$(RESET)"; \
+		TEST_TARGET="$(PROJECT_NAME)Tests/$(FILE)"; \
+	fi; \
+	if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$$TEST_TARGET$(RESET)"; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$$TEST_TARGET 2>&1 | xcbeautify" || exit 1; \
+	else \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$$TEST_TARGET$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$$TEST_TARGET 2>&1 | xcbeautify" || exit 1; \
 	fi
-	@echo "$(GREEN)Test for $(FILE) completed successfully$(RESET)"
+	@if [ -n "$(METHOD)" ]; then \
+		echo "$(GREEN)Test method $(METHOD) in $(FILE) completed successfully$(RESET)"; \
+	else \
+		echo "$(GREEN)Test for $(FILE) completed successfully$(RESET)"; \
+	fi
 
-# @help:test-ui-file: Run UI tests for a specific test file using xcodebuild (usage: make test-ui-file FILE=SomeUITests)
+# @help:test-ui-file: Run UI tests for a specific test file using xcodebuild (usage: make test-ui-file FILE=SomeUITests [METHOD=testMethodName])
 .PHONY: test-ui-file
 test-ui-file:
 	@if [ -z "$(FILE)" ]; then \
 		echo "$(RED)Error: specify FILE=<TestClassName> (without the .swift extension)$(RESET)"; exit 1; fi
-	@echo "$(BLUE)Testing UI file $(FILE) with xcodebuild...$(RESET)"
-	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
-			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)UITests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
+	@if [ -n "$(METHOD)" ]; then \
+		echo "$(BLUE)Testing UI method $(METHOD) in $(FILE) with xcodebuild...$(RESET)"; \
+		TEST_TARGET="$(PROJECT_NAME)UITests/$(FILE)/$(METHOD)"; \
 	else \
-			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)UITests/$(FILE)$(RESET)"; \
-				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)UITests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
+		echo "$(BLUE)Testing UI file $(FILE) with xcodebuild...$(RESET)"; \
+		TEST_TARGET="$(PROJECT_NAME)UITests/$(FILE)"; \
+	fi; \
+	if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$$TEST_TARGET$(RESET)"; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$$TEST_TARGET 2>&1 | xcbeautify" || exit 1; \
+	else \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$$TEST_TARGET$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$$TEST_TARGET 2>&1 | xcbeautify" || exit 1; \
 	fi
-	@echo "$(GREEN)UI test for $(FILE) completed successfully$(RESET)"
+	@if [ -n "$(METHOD)" ]; then \
+		echo "$(GREEN)UI test method $(METHOD) in $(FILE) completed successfully$(RESET)"; \
+	else \
+		echo "$(GREEN)UI test for $(FILE) completed successfully$(RESET)"; \
+	fi
 
 # @help:run: Close Xcode, regenerate project, build and run
 .PHONY: run
