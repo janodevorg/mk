@@ -155,30 +155,20 @@ test-coverage:
 	@echo "$(BLUE)Open with: xcrun xcresulttool get test-results summary --path ./coverage/TestResults.xcresult | jq .$(RESET)"
 	@echo "$(BLUE)For detailed results: xcrun xcresulttool get test-results tests --path ./coverage/TestResults.xcresult$(RESET)"
 
-# @help:test-unit-file: Run tests for a specific test file using xcodebuild (usage: make test-unit-file FILE=SomeTests [METHOD=testMethodName])
+# @help:test-unit-file: Run tests for a specific test file using xcodebuild (usage: make test-unit-file FILE=SomeTests). Running individual methods is not supported in Swift Testing
 .PHONY: test-unit-file
 test-unit-file:
 	@if [ -z "$(FILE)" ]; then \
 		echo "$(RED)Error: specify FILE=<TestClassName> (without the .swift extension)$(RESET)"; exit 1; fi
-	@if [ -n "$(METHOD)" ]; then \
-		echo "$(BLUE)Testing method $(METHOD) in $(FILE) with xcodebuild...$(RESET)"; \
-		TEST_TARGET="$(PROJECT_NAME)Tests/$(FILE)/$(METHOD)"; \
+	@echo "$(BLUE)Testing file $(FILE) with xcodebuild...$(RESET)"
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
 	else \
-		echo "$(BLUE)Testing file $(FILE) with xcodebuild...$(RESET)"; \
-		TEST_TARGET="$(PROJECT_NAME)Tests/$(FILE)"; \
-	fi; \
-	if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
-		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$$TEST_TARGET$(RESET)"; \
-			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$$TEST_TARGET 2>&1 | xcbeautify" || exit 1; \
-	else \
-			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$$TEST_TARGET$(RESET)"; \
-				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$$TEST_TARGET 2>&1 | xcbeautify" || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE)$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests/$(FILE) 2>&1 | xcbeautify" || exit 1; \
 	fi
-	@if [ -n "$(METHOD)" ]; then \
-		echo "$(GREEN)Test method $(METHOD) in $(FILE) completed successfully$(RESET)"; \
-	else \
-		echo "$(GREEN)Test for $(FILE) completed successfully$(RESET)"; \
-	fi
+	@echo "$(GREEN)Test for $(FILE) completed successfully$(RESET)"
 
 # @help:test-ui-file: Run UI tests for a specific test file using xcodebuild (usage: make test-ui-file FILE=SomeUITests [METHOD=testMethodName])
 .PHONY: test-ui-file
