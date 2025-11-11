@@ -155,6 +155,27 @@ test-coverage:
 	@echo "$(BLUE)Open with: xcrun xcresulttool get test-results summary --path ./coverage/TestResults.xcresult | jq .$(RESET)"
 	@echo "$(BLUE)For detailed results: xcrun xcresulttool get test-results tests --path ./coverage/TestResults.xcresult$(RESET)"
 
+# @help:test-unit-coverage: Run only unit tests (no UI tests) using xcodebuild with code coverage
+.PHONY: test-unit-coverage
+test-unit-coverage:
+	@echo "$(BLUE)Running unit tests for $(PROJECT_NAME) with code coverage...$(RESET)"
+	@if [ -L "coverage" ]; then rm -f coverage; fi
+	@mkdir -p coverage
+	@rm -rf ./coverage/TestResults.xcresult
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult 2>&1 | xcbeautify" || exit 1; \
+	else \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests -enableCodeCoverage YES -resultBundlePath ./coverage/TestResults.xcresult 2>&1 | xcbeautify" || exit 1; \
+	fi
+	@echo "$(GREEN)Unit tests and code coverage completed successfully$(RESET)"
+	@echo ""
+	@echo "$(BLUE)=================================$(RESET)"
+	@echo "$(BLUE)Coverage Summary by Target$(RESET)"
+	@echo "$(BLUE)=================================$(RESET)"
+	@xcrun xccov view --report --only-targets ./coverage/TestResults.xcresult
+
 # @help:test-unit-file: Run tests for a specific test file using xcodebuild (usage: make test-unit-file FILE=SomeTests). Running individual methods is not supported in Swift Testing
 .PHONY: test-unit-file
 test-unit-file:
@@ -262,12 +283,18 @@ run-xcode: run
 	@open $(PROJECT_NAME).xcworkspace
 	@echo "$(GREEN)Xcode opened successfully$(RESET)"
 
-# @help:coverage: Generate and display code coverage summary for Xcode project
+# @help:coverage: Generate and display code coverage summary for Xcode project (unit tests only)
 .PHONY: coverage
-coverage: test-coverage
-	@echo "$(BLUE)Generating coverage summary from Xcode results...$(RESET)"
-	@xcrun xccov view --report --only-targets ./coverage/TestResults.xcresult | tee coverage-summary.txt
-	@echo "$(GREEN)Coverage summary saved to coverage-summary.txt$(RESET)"
+coverage: test-unit-coverage
+	@echo ""
+	@echo "$(BLUE)=================================$(RESET)"
+	@echo "$(BLUE)Coverage Summary by Target$(RESET)"
+	@echo "$(BLUE)=================================$(RESET)"
+	@xcrun xccov view --report --only-targets ./coverage/TestResults.xcresult
+	@echo ""
+	@echo "$(BLUE)Generating detailed coverage report...$(RESET)"
+	@xcrun xccov view --report ./coverage/TestResults.xcresult > coverage-summary.txt
+	@echo "$(GREEN)Detailed coverage report saved to coverage-summary.txt$(RESET)"
 
 # @help:coverage-json: Generate JSON coverage report for Xcode project
 .PHONY: coverage-json
