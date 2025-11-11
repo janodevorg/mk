@@ -342,6 +342,17 @@ coverage-file: test-coverage
 		 echo "$(YELLOW)Available files:$(RESET)" && \
 		 xcrun xccov view --file-list ./coverage/TestResults.xcresult | grep -i swift | head -20)
 
+# @help:coverage-file-unit: Show coverage for a specific file using unit tests only (usage: make coverage-file-unit FILE=path/to/File.swift)
+.PHONY: coverage-file-unit
+coverage-file-unit: test-unit-coverage
+	@if [ -z "$(FILE)" ]; then \
+		echo "$(RED)Error: specify FILE=<path/to/File.swift>$(RESET)"; exit 1; fi
+	@echo "$(BLUE)Coverage for $(FILE) [unit tests only]...$(RESET)"
+	@xcrun xccov view --file "$(FILE)" ./coverage/TestResults.xcresult || \
+		(echo "$(RED)File not found in coverage report. Try the full path starting from project root.$(RESET)" && \
+		 echo "$(YELLOW)Available files:$(RESET)" && \
+		 xcrun xccov view --file-list ./coverage/TestResults.xcresult | grep -i swift | head -20)
+
 # @help:coverage-quiet: Generate code coverage summary silently for Xcode project
 .PHONY: coverage-quiet
 coverage-quiet:
