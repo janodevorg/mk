@@ -125,6 +125,18 @@ coverage-quiet:
 	llvm-cov report -instr-profile $$prof $$exec | grep -E '$(COVERAGE_SOURCE_PATTERN)' > coverage-summary.txt 2>/dev/null
 	@cat coverage-summary.txt
 
+# @help:coverage-percent: Run tests, then print only filename and line coverage percent
+.PHONY: coverage-percent
+coverage-percent:
+	@echo "$(BLUE)Running tests with coverage for $(PROJECT_NAME)…$(RESET)"
+	@rm -f coverage-summary.txt
+	@$(MAKE) build-and-test
+	@echo "$(BLUE)Generating coverage summary…$(RESET)"
+	@read prof exec <<< "$$( $(call find-prof-and-bin) )"; \
+	llvm-cov report -instr-profile $$prof $$exec | grep -E '$(COVERAGE_SOURCE_PATTERN)' > coverage-summary.txt
+	@echo "$(BLUE)File coverage (filename percent)$(RESET)"
+	@awk '{printf "%s %s\n", $$1, $$10}' coverage-summary.txt
+
 # @help:coverage-lcov: Generate LCOV file at coverage/coverage.lcov
 .PHONY: coverage-lcov lcov
 coverage-lcov lcov: build-and-test
