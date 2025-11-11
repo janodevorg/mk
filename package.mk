@@ -107,6 +107,8 @@ find-prof-and-bin = \
 
 # Default coverage source pattern (can be overridden by individual projects)
 COVERAGE_SOURCE_PATTERN ?= (Apuntika/Packages/$(PROJECT_NAME)/Sources/$(PROJECT_NAME)|$(PROJECT_NAME)/Sources/$(PROJECT_NAME))
+# Fallback if no matches are found (keeps targets robust across layouts)
+COVERAGE_FALLBACK_PATTERN ?= ^Sources/
 
 # @help:coverage: Generate and display code coverage summary
 .PHONY: coverage
@@ -114,7 +116,14 @@ coverage: build-and-test
 	@echo "$(BLUE)Generating coverage summary...$(RESET)"
 	@mkdir -p .build
 	@read prof exec <<< "$$( $(call find-prof-and-bin) )"; \
-	llvm-cov report -instr-profile $$prof $$exec | grep -E '$(COVERAGE_SOURCE_PATTERN)' | tee coverage-summary.txt
+	report=.build/coverage-report.txt; \
+	llvm-cov report -instr-profile $$prof $$exec > $$report; \
+	if grep -Eq '$(COVERAGE_SOURCE_PATTERN)' $$report; then \
+	  grep -E '$(COVERAGE_SOURCE_PATTERN)' $$report | tee coverage-summary.txt; \
+	else \
+	  echo "Using fallback pattern: $(COVERAGE_FALLBACK_PATTERN)"; \
+	  grep -E '$(COVERAGE_FALLBACK_PATTERN)' $$report | tee coverage-summary.txt; \
+	fi
 
 # @help:coverage-quiet: Generate code coverage summary silently and display results
 .PHONY: coverage-quiet
@@ -122,7 +131,13 @@ coverage-quiet:
 	@rm -f coverage-summary.txt
 	@$(MAKE) build-and-test >/dev/null 2>&1
 	@read prof exec <<< "$$( $(call find-prof-and-bin) )"; \
-	llvm-cov report -instr-profile $$prof $$exec | grep -E '$(COVERAGE_SOURCE_PATTERN)' > coverage-summary.txt 2>/dev/null
+	report=.build/coverage-report.txt; \
+	llvm-cov report -instr-profile $$prof $$exec > $$report; \
+	if grep -Eq '$(COVERAGE_SOURCE_PATTERN)' $$report; then \
+	  grep -E '$(COVERAGE_SOURCE_PATTERN)' $$report > coverage-summary.txt; \
+	else \
+	  grep -E '$(COVERAGE_FALLBACK_PATTERN)' $$report > coverage-summary.txt || true; \
+	fi
 	@cat coverage-summary.txt
 
 # @help:coverage-percent: Run tests, then print only filename and line coverage percent
@@ -133,7 +148,14 @@ coverage-percent:
 	@$(MAKE) build-and-test
 	@echo "$(BLUE)Generating coverage summary…$(RESET)"
 	@read prof exec <<< "$$( $(call find-prof-and-bin) )"; \
-	llvm-cov report -instr-profile $$prof $$exec | grep -E '$(COVERAGE_SOURCE_PATTERN)' > coverage-summary.txt
+	report=.build/coverage-report.txt; \
+	llvm-cov report -instr-profile $$prof $$exec > $$report; \
+	if grep -Eq '$(COVERAGE_SOURCE_PATTERN)' $$report; then \
+	  grep -E '$(COVERAGE_SOURCE_PATTERN)' $$report > coverage-summary.txt; \
+	else \
+	  echo "Using fallback pattern: $(COVERAGE_FALLBACK_PATTERN)"; \
+	  grep -E '$(COVERAGE_FALLBACK_PATTERN)' $$report > coverage-summary.txt || true; \
+	fi
 	@echo "$(BLUE)File coverage (filename percent)$(RESET)"
 	@awk '{printf "%s %s\n", $$1, $$10}' coverage-summary.txt
 
