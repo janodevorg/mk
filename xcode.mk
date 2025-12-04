@@ -77,15 +77,15 @@ build:
 	@echo "$(BLUE)Building project (Debug)...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		if [ -n "$(DEVICE_ID)" ]; then \
-			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)'$(RESET)"; \
-			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' | xcbeautify -q" || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -derivedDataPath ./DerivedData$(RESET)"; \
+			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -derivedDataPath ./DerivedData | xcbeautify -q" || exit 1; \
 		else \
-			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'$(RESET)"; \
-			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' | xcbeautify -q" || exit 1; \
+			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -derivedDataPath ./DerivedData$(RESET)"; \
+			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -derivedDataPath ./DerivedData | xcbeautify -q" || exit 1; \
 		fi; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64'$(RESET)"; \
-			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64' | xcbeautify -q" || exit 1; \
+		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64' -derivedDataPath ./DerivedData$(RESET)"; \
+			bash -o pipefail -c "xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Debug -destination 'platform=$(PLATFORM),arch=arm64' -derivedDataPath ./DerivedData | xcbeautify -q" || exit 1; \
 	fi
 	@echo "$(GREEN)$(PROJECT_NAME) project built successfully (Debug)$(RESET)"
 
@@ -96,15 +96,15 @@ build-release:
 	@echo "$(BLUE)Building $(PROJECT_NAME) project (Release)...$(RESET)"
 	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		if [ -n "$(DEVICE_ID)" ]; then \
-			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)'$(RESET)"; \
-			xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)'; \
+			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -derivedDataPath ./DerivedData$(RESET)"; \
+			xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -derivedDataPath ./DerivedData; \
 		else \
-			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'$(RESET)"; \
-			xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)'; \
+			echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -derivedDataPath ./DerivedData$(RESET)"; \
+			xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -derivedDataPath ./DerivedData; \
 		fi; \
 	else \
-		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),arch=arm64'$(RESET)"; \
-		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),arch=arm64'; \
+		echo "$(YELLOW)Executing: xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),arch=arm64' -derivedDataPath ./DerivedData$(RESET)"; \
+		xcodebuild build -workspace $(PROJECT_NAME).xcworkspace -scheme $(PROJECT_NAME) -configuration Release -destination 'platform=$(PLATFORM),arch=arm64' -derivedDataPath ./DerivedData; \
 	fi
 	@echo "$(GREEN)$(PROJECT_NAME) project built successfully (Release)$(RESET)"
 
