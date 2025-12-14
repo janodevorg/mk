@@ -244,6 +244,10 @@ test-ui-file:
 		echo "$(BLUE)Testing UI file $(FILE) with xcodebuild...$(RESET)"; \
 		TEST_TARGET="$(PROJECT_NAME)UITests/$(FILE)"; \
 	fi; \
+	if [ "$(PLATFORM)" = "macOS" ]; then \
+		echo "$(BLUE)Killing any running $(PROJECT_NAME) process before UI tests...$(RESET)"; \
+		pkill -x "$(PROJECT_NAME)" 2>/dev/null || true; \
+	fi; \
 	if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
 		if [ -n "$(DEVICE_ID)" ]; then \
 			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -only-testing:$$TEST_TARGET$(RESET)"; \
