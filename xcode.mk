@@ -162,6 +162,24 @@ test-unit:
 	fi
 	@echo "$(GREEN)Unit tests completed successfully$(RESET)"
 
+# @help:test-unit-show-only-errors: Run only unit tests and show only errors
+.PHONY: test-unit-show-only-errors
+test-unit-show-only-errors:
+	@echo "make test-unit | grep '^ ' | grep -v 'Suite' | grep -v '✔'"
+	@echo "$(BLUE)Running unit tests for $(PROJECT_NAME) (errors only)...$(RESET)"
+	@if [ "$(PLATFORM)" = "iOS Simulator" ]; then \
+		if [ -n "$(DEVICE_ID)" ]; then \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),id=$(DEVICE_ID)' -only-testing:$(PROJECT_NAME)Tests 2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔'" || exit 1; \
+		else \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
+			bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),name=$(DEVICE_NAME)' -only-testing:$(PROJECT_NAME)Tests 2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔'" || exit 1; \
+		fi; \
+	else \
+			echo "$(YELLOW)Executing: xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests$(RESET)"; \
+				bash -o pipefail -c "xcodebuild test -scheme $(PROJECT_NAME) -destination 'platform=$(PLATFORM),arch=arm64' -only-testing:$(PROJECT_NAME)Tests 2>&1 | xcbeautify | grep '^ ' | grep -v 'Suite' | grep -v '✔'" || exit 1; \
+	fi
+
 # @help:test-coverage: Run tests using xcodebuild with code coverage
 .PHONY: test-coverage
 test-coverage:
